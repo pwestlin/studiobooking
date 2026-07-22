@@ -7,5 +7,6 @@ import org.springframework.boot.runApplication
 class Application
 
 fun main(args: Array<String>) {
+    // TODO pwestlin: Clock?
     runApplication<Application>(*args)
 }
