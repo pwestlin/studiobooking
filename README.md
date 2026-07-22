@@ -1,5 +1,7 @@
 # DDD Studio booking
 
+https://gemini.google.com/app/20c062ce2ef80716
+
 TODO pwestlin: Document
 
 ## Package structure
