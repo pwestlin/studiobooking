@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: studiobooking
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydatabase
+    username: myuser
+    password: secret
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 20
+      max-lifetime: 180000
+      idle-timeout: 170000
+
+  sql:
+    init:
+      mode: always
+
+  docker:
+    compose:
+      lifecycle-management: start_only
+
+logging:
+  level:
+    nu.westlin.studiobooking: debug
+    root: warn
