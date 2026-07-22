@@ -3,6 +3,7 @@
 TODO pwestlin: Document
 
 ## Package structure
+```
 com.example.studiobooking/
 ├── domain/                  <-- Ren Kotlin (Noll Spring-dependencies)
 │   ├── model/
@@ -18,3 +19,4 @@ com.example.studiobooking/
 └── infrastructure/          <-- Ramverk, DB & API
     ├── persistence/         <-- JPA Entities, Spring Data Repositories, Mappers
     └── rest/                <-- REST-controllers & DTOs
+```
