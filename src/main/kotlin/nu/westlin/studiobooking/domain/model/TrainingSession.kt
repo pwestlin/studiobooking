@@ -62,7 +62,8 @@ class TrainingSession(
     fun cancel(now: Instant) {
         check(status == TrainingSessionStatus.SCHEDULED) { "Session $id is already $status" }
         status = TrainingSessionStatus.CANCELLED
-        domainEvents.add(TrainingSessionCancelledEvent(id, now))
+        val bookedMemberIds = bookings.map { it.memberId }.toSet()
+        domainEvents.add(TrainingSessionCancelledEvent(id, bookedMemberIds, now))
     }
 
     /**

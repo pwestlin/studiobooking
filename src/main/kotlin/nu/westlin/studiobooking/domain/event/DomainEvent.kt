@@ -22,5 +22,6 @@ data class BookingCancelledEvent(
 
 data class TrainingSessionCancelledEvent(
     val sessionId: TrainingSessionId,
+    val bookedMemberIds: Set<MemberId>,
     override val occurredAt: Instant
 ) : DomainEvent
