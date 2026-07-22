@@ -19,4 +19,16 @@ sealed interface TrainingSessionEvent : DomainEvent {
         val waitlistPosition: Int,
         override val occurredAt: Instant
     ) : TrainingSessionEvent
+
+    data class MemberCancelled(
+        override val sessionId: TrainingSessionId,
+        val memberId: MemberId,
+        override val occurredAt: Instant
+    ) : TrainingSessionEvent
+
+    data class MemberPromotedFromWaitlist(
+        override val sessionId: TrainingSessionId,
+        val memberId: MemberId,
+        override val occurredAt: Instant
+    ) : TrainingSessionEvent
 }

@@ -170,4 +170,88 @@ class TrainingSessionTest {
             assertTrue(session.domainEvents.isEmpty())
         }
     }
+
+    @Nested
+        inner class Cancellation {
+
+            @Test
+            fun `should cancel booking when member has a confirmed slot`() {
+                val memberId = MemberId.new()
+                session.book(memberId, now)
+                session.clearDomainEvents()
+
+                val result = session.cancel(memberId, now)
+
+                assertEquals(CancellationResult.CancelledSuccessfully, result)
+                assertTrue(session.participants.isEmpty())
+                assertEquals(1, session.domainEvents.size)
+
+                val event = session.domainEvents.first()
+                assertInstanceOf(TrainingSessionEvent.MemberCancelled::class.java, event)
+            }
+
+            @Test
+            fun `should promote first member from waitlist when a participant cancels`() {
+                val member1 = MemberId.new()
+                val member2 = MemberId.new()
+                val waitlistMember1 = MemberId.new()
+                val waitlistMember2 = MemberId.new()
+
+                session.book(member1, now)
+                session.book(member2, now) // Fullt (Kapacitet = 2)
+                session.book(waitlistMember1, now)
+                session.book(waitlistMember2, now)
+                session.clearDomainEvents()
+
+                // Member 1 avbokar
+                val result = session.cancel(member1, now)
+
+                assertEquals(
+                    CancellationResult.CancelledAndPromotedFromWaitlist(waitlistMember1),
+                    result
+                )
+                // Deltagare ska nu vara member2 och waitlistMember1
+                assertEquals(listOf(member2, waitlistMember1), session.participants)
+                // Väntelistan ska nu bara ha waitlistMember2
+                assertEquals(listOf(waitlistMember2), session.waitlist)
+
+                // Verifiera att två events skapades: MemberCancelled och MemberPromotedFromWaitlist
+                assertEquals(2, session.domainEvents.size)
+                assertInstanceOf(TrainingSessionEvent.MemberCancelled::class.java, session.domainEvents[0])
+                assertInstanceOf(TrainingSessionEvent.MemberPromotedFromWaitlist::class.java, session.domainEvents[1])
+
+                val promotedEvent = session.domainEvents[1] as TrainingSessionEvent.MemberPromotedFromWaitlist
+                assertEquals(waitlistMember1, promotedEvent.memberId)
+            }
+
+            @Test
+            fun `should remove member from waitlist without promotion when waitlisted member cancels`() {
+                val member1 = MemberId.new()
+                val member2 = MemberId.new()
+                val waitlistedMember = MemberId.new()
+
+                session.book(member1, now)
+                session.book(member2, now)
+                session.book(waitlistedMember, now)
+                session.clearDomainEvents()
+
+                val result = session.cancel(waitlistedMember, now)
+
+                assertEquals(CancellationResult.CancelledSuccessfully, result)
+                assertEquals(2, session.participants.size)
+                assertTrue(session.waitlist.isEmpty())
+                assertEquals(1, session.domainEvents.size)
+                assertInstanceOf(TrainingSessionEvent.MemberCancelled::class.java, session.domainEvents.first())
+            }
+
+            @Test
+            fun `should fail to cancel when member is neither participant nor on waitlist`() {
+                val unbookedMember = MemberId.new()
+
+                val result = session.cancel(unbookedMember, now)
+
+                assertEquals(CancellationResult.Failure.NotBooked, result)
+                assertTrue(session.domainEvents.isEmpty())
+            }
+        }
 }

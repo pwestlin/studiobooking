@@ -11,7 +11,6 @@ class TrainingSession(
     participants: List<MemberId> = emptyList(),
     waitlist: List<MemberId> = emptyList()
 ) {
-    // Explicit Backing Fields for internal mutable lists exposed as read-only lists
     val participants: List<MemberId>
         field = participants.toMutableList()
 
@@ -19,15 +18,12 @@ class TrainingSession(
         field = waitlist.toMutableList()
 
     val domainEvents: List<TrainingSessionEvent>
-        field = mutableListOf()
+        field = mutableListOf<TrainingSessionEvent>()
 
     fun clearDomainEvents() {
         domainEvents.clear()
     }
 
-    /**
-     * Books a slot for a member or adds them to the waitlist if full.
-     */
     fun book(memberId: MemberId, now: Instant): BookingResult {
         if (participants.contains(memberId)) {
             return BookingResult.Failure.AlreadyBooked
@@ -59,5 +55,51 @@ class TrainingSession(
             )
             BookingResult.AddedToWaitlist(position)
         }
+    }
+
+    /**
+     * Cancels a member's booking or waitlist position.
+     * If a participant cancels and waitlist is non-empty, automatically promotes the first waitlisted member.
+     */
+    fun cancel(memberId: MemberId, now: Instant): CancellationResult {
+        if (participants.contains(memberId)) {
+            participants.remove(memberId)
+            domainEvents.add(
+                TrainingSessionEvent.MemberCancelled(
+                    sessionId = id,
+                    memberId = memberId,
+                    occurredAt = now
+                )
+            )
+
+            return if (waitlist.isNotEmpty()) {
+                val promotedMember = waitlist.removeAt(0)
+                participants.add(promotedMember)
+                domainEvents.add(
+                    TrainingSessionEvent.MemberPromotedFromWaitlist(
+                        sessionId = id,
+                        memberId = promotedMember,
+                        occurredAt = now
+                    )
+                )
+                CancellationResult.CancelledAndPromotedFromWaitlist(promotedMember)
+            } else {
+                CancellationResult.CancelledSuccessfully
+            }
+        }
+
+        if (waitlist.contains(memberId)) {
+            waitlist.remove(memberId)
+            domainEvents.add(
+                TrainingSessionEvent.MemberCancelled(
+                    sessionId = id,
+                    memberId = memberId,
+                    occurredAt = now
+                )
+            )
+            return CancellationResult.CancelledSuccessfully
+        }
+
+        return CancellationResult.Failure.NotBooked
     }
 }
