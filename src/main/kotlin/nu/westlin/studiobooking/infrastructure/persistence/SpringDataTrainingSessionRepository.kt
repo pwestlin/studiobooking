@@ -1,6 +1,5 @@
 package nu.westlin.studiobooking.infrastructure.persistence
 
-import org.springframework.data.repository.ListCrudRepository
-import java.util.UUID
+import org.springframework.data.repository.CrudRepository
 
-interface SpringDataTrainingSessionRepository : ListCrudRepository<TrainingSessionEntity, UUID>
+internal interface SpringDataTrainingSessionRepository : CrudRepository<TrainingSessionEntity, String>

@@ -13,9 +13,9 @@ spring:
       max-lifetime: 180000
       idle-timeout: 170000
 
-  sql:
-    init:
-      mode: always
+  #sql:
+  #  init:
+  #    mode: always
 
   docker:
     compose:

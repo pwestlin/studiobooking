@@ -26,6 +26,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("org.flywaydb:flyway-database-postgresql")
 
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
@@ -39,6 +41,7 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
     testImplementation("com.ninja-squad:springmockk:5.0.1")
+    testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
