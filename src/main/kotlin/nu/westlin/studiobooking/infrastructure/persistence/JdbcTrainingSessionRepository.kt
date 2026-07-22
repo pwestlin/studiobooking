@@ -7,6 +7,7 @@ import nu.westlin.studiobooking.domain.model.MemberId
 import nu.westlin.studiobooking.domain.model.TrainingSession
 import nu.westlin.studiobooking.domain.model.TrainingSessionId
 import nu.westlin.studiobooking.domain.model.TrainingSessionStatus
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.MappedCollection
@@ -75,7 +76,8 @@ interface SpringDataTrainingSessionRepository : ListCrudRepository<TrainingSessi
 
 @Repository
 class JdbcTrainingSessionRepository(
-    private val repository: SpringDataTrainingSessionRepository
+    private val repository: SpringDataTrainingSessionRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) : TrainingSessionRepository {
 
     override fun save(session: TrainingSession) {
@@ -85,6 +87,9 @@ class JdbcTrainingSessionRepository(
 
         val dbEntity = TrainingSessionDbEntity.fromDomain(session, version = existingVersion)
         repository.save(dbEntity)
+
+        session.domainEvents.forEach(eventPublisher::publishEvent)
+        session.clearDomainEvents()
     }
 
     override fun findById(id: TrainingSessionId): TrainingSession? =

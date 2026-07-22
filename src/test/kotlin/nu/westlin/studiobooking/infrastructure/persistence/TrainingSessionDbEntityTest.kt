@@ -1,5 +1,6 @@
 package nu.westlin.studiobooking.infrastructure.persistence
 
+import nu.westlin.studiobooking.domain.event.MemberBookedEvent
 import nu.westlin.studiobooking.domain.model.Capacity
 import nu.westlin.studiobooking.domain.model.MemberId
 import nu.westlin.studiobooking.domain.model.TrainingSession
@@ -10,14 +11,45 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jdbc.test.autoconfigure.DataJdbcTest
 import org.springframework.context.annotation.Import
+import org.springframework.test.context.event.ApplicationEvents
+import org.springframework.test.context.event.RecordApplicationEvents
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 @DataJdbcTest
+@RecordApplicationEvents
 @Import(SharedTestcontainersConfiguration::class, JdbcTrainingSessionRepository::class)
 class JdbcTrainingSessionRepositoryTest @Autowired constructor(
     private val repository: JdbcTrainingSessionRepository
 ) {
+
+    @Test
+    fun `publish domain events and clear them when saving session`(events: ApplicationEvents) {
+        val now = Instant.now()
+        val session = TrainingSession.new(
+            name = "Yoga",
+            capacity = Capacity(10),
+            startTime = now.plusSeconds(3600),
+            endTime = now.plusSeconds(7200)
+        )
+        val memberId = MemberId.new()
+        session.book(memberId, now)
+
+        repository.save(session)
+
+        // Verifiera att eventet spelats in av Spring Test
+        val publishedEvents = events.stream(MemberBookedEvent::class.java).toList()
+        assertThat(publishedEvents)
+            .hasSize(1)
+            .first()
+            .satisfies({ event ->
+                assertThat(event.sessionId).isEqualTo(session.id)
+                assertThat(event.memberId).isEqualTo(memberId)
+            })
+
+        // Verifiera att domänhändelserna rensades på aggregatet
+        assertThat(session.domainEvents).isEmpty()
+    }
 
     @Test
     fun `save and find training session aggregate with bookings`() {
