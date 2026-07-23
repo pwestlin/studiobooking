@@ -93,6 +93,7 @@ class JdbcTrainingSessionRepository(
     }
 
     override fun findById(id: TrainingSessionId): TrainingSession? =
+        // TODO pwestlin: Skapa read/writeconverters för ID-klasser så vi slipper göra .id.value.
         repository.findById(id.value).map { it.toDomain() }.orElse(null)
 
     override fun findAll(): List<TrainingSession> =

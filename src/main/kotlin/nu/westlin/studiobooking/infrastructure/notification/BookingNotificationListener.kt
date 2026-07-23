@@ -22,14 +22,14 @@ class BookingNotificationListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleBookingCancelled(event: BookingCancelledEvent) {
-        log.info("Notifying member '${event.memberId.value}' that their booking for session '${event.sessionId.value}' was cancelled")
+        log.info("Notifying member '${event.memberId}' that their booking for session '${event.sessionId}' was cancelled")
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleTrainingSessionCancelled(event: TrainingSessionCancelledEvent) {
         event.bookedMemberIds.forEach { memberId ->
-            log.info("Notifying member '${memberId.value}' that training session '${event.sessionId.value}' has been cancelled")
+            log.info("Notifying member '${memberId}' that training session '${event.sessionId}' has been cancelled")
         }
     }
 }

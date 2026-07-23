@@ -39,7 +39,7 @@ class CancelTrainingSessionIntegrationTest @Autowired constructor(
         val sessionId = TrainingSessionId.new()
         assertThatThrownBy { useCase.execute(CancelTrainingSessionCommand(sessionId, Instant.now(clock))) }
             .isExactlyInstanceOf<IllegalArgumentException>()
-            .hasMessage("Training session with ID ${sessionId.value} was not found")
+            .hasMessage("Training session with ID $sessionId was not found")
 
         confirmVerified(notificationListener)
     }

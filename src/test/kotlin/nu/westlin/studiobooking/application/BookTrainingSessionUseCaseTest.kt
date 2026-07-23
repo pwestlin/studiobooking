@@ -55,6 +55,6 @@ class BookTrainingSessionUseCaseTest {
 
         assertThatThrownBy { useCase.execute(command) }
             .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("Training session with ID ${sessionId.value} was not found")
+            .hasMessage("Training session with ID ${sessionId} was not found")
     }
 }

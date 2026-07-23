@@ -23,7 +23,7 @@ class BookTrainingSessionUseCase(
     @Transactional
     fun execute(command: BookTrainingSessionCommand) {
         val session = repository.findById(command.sessionId)
-            ?: throw IllegalArgumentException("Training session with ID ${command.sessionId.value} was not found")
+            ?: throw IllegalArgumentException("Training session with ID ${command.sessionId} was not found")
 
         val now = clock.instant()
         session.book(memberId = command.memberId, now = now)

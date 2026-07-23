@@ -21,7 +21,7 @@ class CancelTrainingSessionUseCase(
     @Transactional
     fun execute(command: CancelTrainingSessionCommand) {
         val session = repository.findById(command.sessionId)
-            ?: throw IllegalArgumentException("Training session with ID ${command.sessionId.value} was not found")
+            ?: throw IllegalArgumentException("Training session with ID ${command.sessionId} was not found")
 
         session.cancel(now = command.now)
         repository.save(session)
