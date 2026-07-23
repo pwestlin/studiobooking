@@ -21,6 +21,10 @@ spring:
     compose:
       lifecycle-management: start_only
 
+  modulith.events:
+    jdbc.schema-initialization.enabled: true
+    #republish-outstanding-events-on-restart: true
+
 logging:
   level:
     nu.westlin.studiobooking: debug

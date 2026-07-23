@@ -28,6 +28,10 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation(platform("org.springframework.modulith:spring-modulith-bom:2.1.0"))
+    implementation("org.springframework.modulith:spring-modulith-events-api")
+    implementation("org.springframework.modulith:spring-modulith-events-jdbc")
+    implementation("org.springframework.modulith:spring-modulith-events-jackson")
 
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
