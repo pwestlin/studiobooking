@@ -4,6 +4,9 @@ import nu.westlin.studiobooking.domain.event.BookingCancelledEvent
 import nu.westlin.studiobooking.domain.event.DomainEvent
 import nu.westlin.studiobooking.domain.event.MemberBookedEvent
 import nu.westlin.studiobooking.domain.event.TrainingSessionCancelledEvent
+import nu.westlin.studiobooking.domain.exception.MemberAlreadyBookedException
+import nu.westlin.studiobooking.domain.exception.TrainingSessionAlreadyCancelledException
+import nu.westlin.studiobooking.domain.exception.TrainingSessionFullException
 import java.time.Instant
 
 /**
@@ -37,9 +40,15 @@ class TrainingSession(
      * Books a member for this session if capacity allows and session is active.
      */
     fun book(memberId: MemberId, now: Instant) {
-        check(status == TrainingSessionStatus.SCHEDULED) { "Cannot book a session with status $status" }
-        check(!isFullyBooked()) { "Training session $id is fully booked" }
-        check(bookings.none { it.memberId == memberId }) { "Member $memberId is already booked for session $id" }
+        if (status != TrainingSessionStatus.SCHEDULED) {
+            throw TrainingSessionAlreadyCancelledException(id)
+        }
+        if (bookings.size >= capacity.value) {
+            throw TrainingSessionFullException(id)
+        }
+        if (bookings.any { it.memberId == memberId }) {
+            throw MemberAlreadyBookedException(id, memberId)
+        }
 
         bookings.add(Booking(memberId, now))
         domainEvents.add(MemberBookedEvent(id, memberId, now))

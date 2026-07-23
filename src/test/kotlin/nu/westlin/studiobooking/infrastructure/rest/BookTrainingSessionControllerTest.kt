@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.verify
 import nu.westlin.studiobooking.application.BookTrainingSessionCommand
 import nu.westlin.studiobooking.application.BookTrainingSessionUseCase
-import nu.westlin.studiobooking.domain.TrainingSessionNotFoundException
+import nu.westlin.studiobooking.domain.exception.TrainingSessionNotFoundException
 import nu.westlin.studiobooking.domain.model.MemberId
 import nu.westlin.studiobooking.domain.model.TrainingSessionId
 import org.junit.jupiter.api.Test

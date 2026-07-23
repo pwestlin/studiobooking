@@ -5,6 +5,11 @@ import java.util.*
 
 @JvmInline
 value class TrainingSessionId(val value: UUID) {
+
+    override fun toString(): String {
+        return value.toString()
+    }
+
     companion object {
         fun new(): TrainingSessionId = TrainingSessionId(UUID.randomUUID())
     }
@@ -12,6 +17,11 @@ value class TrainingSessionId(val value: UUID) {
 
 @JvmInline
 value class MemberId(val value: UUID) {
+
+    override fun toString(): String {
+        return value.toString()
+    }
+
     companion object {
         fun new(): MemberId = MemberId(UUID.randomUUID())
     }
@@ -22,6 +32,11 @@ value class Capacity(val value: Int) {
     init {
         require(value > 0) { "Capacity must be greater than zero" }
     }
+
+    override fun toString(): String {
+        return value.toString()
+    }
+
 }
 
 enum class TrainingSessionStatus {
