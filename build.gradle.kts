@@ -47,6 +47,7 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:5.0.1")
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.awaitility:awaitility-kotlin")
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.4.2")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

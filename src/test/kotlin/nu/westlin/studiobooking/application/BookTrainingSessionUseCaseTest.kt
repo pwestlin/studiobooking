@@ -3,11 +3,14 @@ package nu.westlin.studiobooking.application
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import nu.westlin.studiobooking.domain.MemberRepository
 import nu.westlin.studiobooking.domain.TrainingSessionRepository
+import nu.westlin.studiobooking.domain.exception.TrainingSessionNotFoundException
 import nu.westlin.studiobooking.domain.model.Capacity
 import nu.westlin.studiobooking.domain.model.MemberId
 import nu.westlin.studiobooking.domain.model.TrainingSession
 import nu.westlin.studiobooking.domain.model.TrainingSessionId
+import nu.westlin.studiobooking.test.isInstanceOf
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import java.time.Clock
@@ -16,11 +19,12 @@ import java.time.ZoneId
 
 class BookTrainingSessionUseCaseTest {
 
-    private val repository: TrainingSessionRepository = mockk(relaxed = true)
+    private val trainingSessionRepository: TrainingSessionRepository = mockk(relaxed = true)
+    private val memberRepository: MemberRepository = mockk(relaxed = true)
     private val fixedInstant = Instant.parse("2026-06-01T10:00:00Z")
     private val clock: Clock = Clock.fixed(fixedInstant, ZoneId.of("UTC"))
 
-    private val useCase = BookTrainingSessionUseCase(repository, clock)
+    private val useCase = BookTrainingSessionUseCase(trainingSessionRepository, memberRepository, clock)
 
     @Test
     fun `book training session successfully`() {
@@ -36,11 +40,11 @@ class BookTrainingSessionUseCaseTest {
             memberId = memberId
         )
 
-        every { repository.findById(session.id) } returns session
+        every { trainingSessionRepository.findById(session.id) } returns session
 
         useCase.execute(command)
 
-        verify(exactly = 1) { repository.save(session) }
+        verify(exactly = 1) { trainingSessionRepository.save(session) }
     }
 
     @Test
@@ -51,10 +55,10 @@ class BookTrainingSessionUseCaseTest {
             memberId = MemberId.new()
         )
 
-        every { repository.findById(sessionId) } returns null
+        every { trainingSessionRepository.findById(sessionId) } returns null
 
         assertThatThrownBy { useCase.execute(command) }
-            .isInstanceOf(IllegalArgumentException::class.java)
-            .hasMessage("Training session with ID ${sessionId} was not found")
+            .isInstanceOf<TrainingSessionNotFoundException>()
+            .hasMessage("Training session with id '$sessionId' was not found.")
     }
 }

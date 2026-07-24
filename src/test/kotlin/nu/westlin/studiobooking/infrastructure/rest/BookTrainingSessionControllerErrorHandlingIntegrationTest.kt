@@ -1,8 +1,11 @@
 package nu.westlin.studiobooking.infrastructure.rest
 
+import nu.westlin.studiobooking.domain.MemberRepository
 import nu.westlin.studiobooking.domain.TrainingSessionRepository
 import nu.westlin.studiobooking.domain.model.Capacity
+import nu.westlin.studiobooking.domain.model.Member
 import nu.westlin.studiobooking.domain.model.MemberId
+import nu.westlin.studiobooking.domain.model.MemberStatus
 import nu.westlin.studiobooking.domain.model.TrainingSession
 import nu.westlin.studiobooking.test.SharedTestcontainersConfiguration
 import org.assertj.core.api.Assertions.assertThat
@@ -27,7 +30,8 @@ import java.time.temporal.ChronoUnit
 @Import(SharedTestcontainersConfiguration::class)
 class BookTrainingSessionControllerErrorHandlingIntegrationTest @Autowired constructor(
     private val restTestClient: RestTestClient,
-    private val repository: TrainingSessionRepository,
+    private val sessionRepository: TrainingSessionRepository,
+    private val memberRepository: MemberRepository,
     private val clock: Clock,
     @LocalServerPort private val port: Int
 ) {
@@ -45,11 +49,16 @@ class BookTrainingSessionControllerErrorHandlingIntegrationTest @Autowired const
         )
         val existingMember = MemberId.new()
         session.book(existingMember, now)
-        repository.save(session)
+        sessionRepository.save(session)
 
         // Försök göra en andra bokning via REST API
-        val newMember = MemberId.new()
-        val requestBody = BookSessionRequestDto(memberId = newMember.value)
+        val member = Member(
+            id = MemberId.new(),
+            name = "Foo Bar",
+            status = MemberStatus.ACTIVE
+        )
+        memberRepository.save(member)
+        val requestBody = BookSessionRequestDto(memberId = member.id.value)
 
         restTestClient.post()
             .uri("/api/training-sessions/{id}/bookings", session.id.value)

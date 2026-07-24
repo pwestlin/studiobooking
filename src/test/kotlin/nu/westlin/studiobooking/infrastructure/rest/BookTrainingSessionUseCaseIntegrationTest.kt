@@ -1,8 +1,11 @@
 package nu.westlin.studiobooking.infrastructure.rest
 
+import nu.westlin.studiobooking.domain.MemberRepository
 import nu.westlin.studiobooking.domain.TrainingSessionRepository
 import nu.westlin.studiobooking.domain.model.Capacity
+import nu.westlin.studiobooking.domain.model.Member
 import nu.westlin.studiobooking.domain.model.MemberId
+import nu.westlin.studiobooking.domain.model.MemberStatus
 import nu.westlin.studiobooking.domain.model.TrainingSession
 import nu.westlin.studiobooking.test.SharedTestcontainersConfiguration
 import org.assertj.core.api.Assertions.assertThat
@@ -26,7 +29,8 @@ import java.time.temporal.ChronoUnit
 @Import(SharedTestcontainersConfiguration::class)
 class BookTrainingSessionUseCaseIntegrationTest @Autowired constructor(
     private val restTestClient: RestTestClient,
-    private val repository: TrainingSessionRepository,
+    private val sessionRepository: TrainingSessionRepository,
+    private val memberRepository: MemberRepository,
     private val jdbcClient: JdbcClient,
     private val clock: Clock
 ) {
@@ -38,6 +42,13 @@ class BookTrainingSessionUseCaseIntegrationTest @Autowired constructor(
 
     @Test
     fun `publish event to outbox table and complete execution asynchronously`() {
+        val member = Member(
+            id = MemberId.new(),
+            name = "Foo Bar",
+            status = MemberStatus.ACTIVE
+        )
+        memberRepository.save(member)
+
         val now = Instant.now(clock).truncatedTo(ChronoUnit.MICROS)
         val session = TrainingSession.new(
             name = "Spinning",
@@ -45,9 +56,9 @@ class BookTrainingSessionUseCaseIntegrationTest @Autowired constructor(
             startTime = now.plus(1, ChronoUnit.HOURS),
             endTime = now.plus(2, ChronoUnit.HOURS)
         )
-        repository.save(session)
+        sessionRepository.save(session)
 
-        val memberId = MemberId.new()
+        val memberId = member.id
         val requestBody = BookSessionRequestDto(memberId = memberId.value)
 
         // 1. Skicka anrop via systemgränsen

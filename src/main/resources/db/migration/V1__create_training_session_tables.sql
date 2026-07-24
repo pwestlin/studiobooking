@@ -6,7 +6,7 @@ CREATE TABLE training_session
     start_time TIMESTAMPTZ  NOT NULL,
     end_time   TIMESTAMPTZ  NOT NULL,
     status     VARCHAR(50)  NOT NULL,
-    version    BIGINT
+    version BIGINT NOT NULL
 );
 
 CREATE TABLE booking

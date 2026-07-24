@@ -18,7 +18,7 @@ import java.time.temporal.ChronoUnit
 
 @DataJdbcTest
 @RecordApplicationEvents
-@Import(SharedTestcontainersConfiguration::class, JdbcTrainingSessionRepository::class)
+@Import(JdbcTrainingSessionRepository::class, SharedTestcontainersConfiguration::class)
 class JdbcTrainingSessionRepositoryTest @Autowired constructor(
     private val repository: JdbcTrainingSessionRepository
 ) {
