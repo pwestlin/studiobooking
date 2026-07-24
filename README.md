@@ -1,10 +1,11 @@
 # DDD Studio booking
 
-https://gemini.google.com/app/20c062ce2ef80716
+A backend for training session bookings.  
+Uses Onion/Hexagonal Architecture concepts.
 
-TODO pwestlin: Document
+https://gemini.google.com/app/20c062ce2ef80716 (private, only for me :D)
 
-## Package structure
+## Package structure (kind of)
 ```
 com.example.studiobooking/
 ├── domain/                  <-- Ren Kotlin (Noll Spring-dependencies)
